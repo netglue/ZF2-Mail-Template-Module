@@ -1,0 +1,35 @@
+{
+	"name" : "netglue/mail-template-module",
+	"description" : "ZF2 Module to help with generating and sending HTML email templates",
+	"type" : "module",
+	"license" : "MIT",
+	"keywords" : [
+		"zf2",
+		"zend",
+		"module",
+		"netglue"
+	],
+	"config" : {
+		"minimum-stability" : "dev"
+	},
+	"homepage" : "https://bitbucket.org/netglue/zf2-mail-template-module",
+	"authors" : [
+		{
+			"name" : "George Steel",
+			"email" : "george@net-glue.co.uk",
+			"homepage" : "https://netglue.uk/"
+		}
+	],
+	"require" : {
+		"php" : ">=5.5",
+		"zendframework/zendframework": "~2.5",
+        "zendframework/zend-mvc": "2.6.3",
+        "sendgrid/sendgrid": "~4.0",
+		"psr/log" : "~1.0"
+    },
+	"autoload" : {
+		"psr-0" : {
+			"NetglueMail" : "src/"
+		}
+	}
+}
