@@ -6,7 +6,7 @@ use NetglueMailTest\bootstrap;
 use NetglueMail\TemplateService;
 use Zend\View\Renderer\PhpRenderer;
 use Zend\Test\PHPUnit\Controller\AbstractControllerTestCase;
-class TemplateServiceTest extends AbstractControllerTestCase //\PHPUnit_Framework_TestCase
+class TemplateServiceTest extends AbstractControllerTestCase
 {
 
     public function setUp()
@@ -55,6 +55,18 @@ class TemplateServiceTest extends AbstractControllerTestCase //\PHPUnit_Framewor
     }
 
     /**
+     * @depends testTemplateServiceCanBeRetrievedFromServiceLocator
+     */
+    public function testGetTextTemplateByName(TemplateService $service)
+    {
+        $this->assertSame('tmpl/text', $service->getTextTemplateByName('contactUs'));
+        $this->assertNull($service->getTextTemplateByName('unknown-message-type'), 'Template should be null for unknown messages');
+        $this->assertNull($service->getTextTemplateByName('nullTemplate'), 'Template should be null when one has not been set');
+
+        return $service;
+    }
+
+    /**
      * @depends testGetTemplateByName
      */
     public function testRenderTemplate(TemplateService $service)
@@ -65,12 +77,29 @@ class TemplateServiceTest extends AbstractControllerTestCase //\PHPUnit_Framewor
     }
 
     /**
-     * @depends testGetTemplateByName
-     * @expectedException NetglueMail\Exception\UnknownTemplateException
+     * @depends testGetTextTemplateByName
      */
-    public function testRenderTemplateThrowsExceptionForNullTemplate(TemplateService $service)
+    public function testRenderTextTemplate(TemplateService $service)
     {
-        $html = $service->renderTemplate('nullTemplate');
+        $text = $service->renderTextTemplate('contactUs');
+        $this->assertInternalType('string', $text);
+        $this->assertContains('I’m a Text Template', $text);
+    }
+
+    /**
+     * @depends testGetTemplateByName
+     */
+    public function testRenderTemplateReturnsNullForNullTemplate(TemplateService $service)
+    {
+        $this->assertNull($service->renderTemplate('nullTemplate'));
+    }
+
+    /**
+     * @depends testGetTemplateByName
+     */
+    public function testRenderTextTemplateReturnsNullForNullTemplate(TemplateService $service)
+    {
+        $this->assertNull($service->renderTextTemplate('nullTemplate'));
     }
 
     /**
@@ -82,5 +111,16 @@ class TemplateServiceTest extends AbstractControllerTestCase //\PHPUnit_Framewor
         $this->assertInternalType('string', $html);
         $this->assertContains('[layoutStart]', $html);
         $this->assertContains('&amp;', $html);
+    }
+
+    /**
+     * @depends testGetTextTemplateByName
+     */
+    public function testRenderTextLayout(TemplateService $service)
+    {
+        $text = $service->renderTextTemplate('gotLayout');
+        $this->assertInternalType('string', $text);
+        $this->assertContains('[Text Layout Start]', $text);
+        $this->assertContains('I’m a Text Template', $text);
     }
 }

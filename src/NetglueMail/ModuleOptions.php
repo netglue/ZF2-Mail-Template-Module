@@ -36,6 +36,18 @@ class ModuleOptions extends AbstractOptions
     private $defaultLayout;
 
     /**
+     * Default Plain Text Layout Template
+     * @var string|null
+     */
+    private $textLayout;
+
+    /**
+     * Transport Name
+     * @var string|null
+     */
+    private $transport;
+
+    /**
      * @param string $name
      * @return void
      */
@@ -109,6 +121,28 @@ class ModuleOptions extends AbstractOptions
     }
 
     /**
+     * Return the value of a specific message option
+     * @param string $messageName
+     * @param string $option
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getMessageOption($messageName, $option, $default = null)
+    {
+        if(!is_string($option)) {
+            throw new Exception\InvalidArgumentException('Option name must be a string');
+        }
+        if ($config = $this->getMessageConfig($messageName)) {
+            if (isset($config[$option])) {
+                return $config[$option];
+            }
+        }
+
+        return $default;
+    }
+
+
+    /**
      * Layout
      * @param string $layout
      * @return void
@@ -127,4 +161,42 @@ class ModuleOptions extends AbstractOptions
         return $this->defaultLayout;
     }
 
+    /**
+     * Layout
+     * @param string $layout
+     * @return void
+     */
+    public function setTextLayout($layout)
+    {
+        $layout = empty($layout) ? null : (string) $layout;
+        $this->textLayout = $layout;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTextLayout()
+    {
+        return $this->textLayout;
+    }
+
+    /**
+     * Set transport name
+     * @param string $transport
+     * @return void
+     */
+    public function setTransport($transport)
+    {
+        $transport = empty($transport) ? null : (string) $transport;
+        $this->transport = $transport;
+    }
+
+    /**
+     * Return transport name
+     * @return string|null
+     */
+    public function getTransport()
+    {
+        return $this->transport;
+    }
 }

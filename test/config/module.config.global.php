@@ -13,19 +13,41 @@ return [
          */
         'defaultHeaders' => [
             'X-Mailer' => 'Netglue Mail Template Module',
+            'X-Foo' => 'Bar',
+            'X-Blah' => 'Bing',
         ],
 
         'messages' => [
             'contactUs' => [
-                'template'   => 'tmpl/one',
-                'subject'    => 'An Interesting Subject Line',
+                'template'     => 'tmpl/one',
+                'textTemplate' => 'tmpl/text',
+                'subject'      => 'An Interesting Subject Line',
+                'to'           => ['bill@example.com', 'foo@example.com' => 'Foo'],
+                'cc'           => ['cc@example.com', 'cc2@example.com' => 'Some Guy'],
+                'bcc'          => [],
+                'replyTo'      => ['you@example.com', 'reply@example.com' => 'Reply Here'],
+                'from'         => 'Jane <jane@example.com>',
+                'sender'       => 'sender@example.com',
+                'senderName'   => 'I Sent This',
+                'headers' => [
+                    'X-Foo' => 'Baz',
+                ],
             ],
             'nullTemplate' => [
                 'subject' => 'Foo',
             ],
             'gotLayout' => [
-                'template'   => 'tmpl/one',
-                'layout'     => 'layout/one',
+                'template'     => 'tmpl/one',
+                'layout'       => 'layout/one',
+                'textTemplate' => 'tmpl/text',
+                'textLayout'   => 'layout/text',
+            ],
+
+            'viewVariables' => [
+                'textTemplate' => 'variables',
+                'to' => 'me@example.com',
+                'from' => 'you@example.com',
+                'subject' => 'A Test',
             ],
         ],
 
@@ -34,8 +56,11 @@ return [
 
     'view_manager' => [
         'template_map' => [
-            'tmpl/one' => __DIR__ . '/../view/tmpl-one.phtml',
-            'layout/one' => __DIR__ . '/../view/layout-one.phtml',
+            'tmpl/one'    => __DIR__ . '/../view/tmpl-one.phtml',
+            'tmpl/text'   => __DIR__ . '/../view/tmpl-two.txt',
+            'layout/one'  => __DIR__ . '/../view/layout-one.phtml',
+            'layout/text' => __DIR__ . '/../view/text-layout.txt',
+            'variables' => __DIR__ . '/../view/variables.txt',
         ],
     ],
 

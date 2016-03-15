@@ -31,6 +31,7 @@ class Module implements
             'factories' => [
                 'NetglueMail\ModuleOptions'   => 'NetglueMail\Factory\ModuleOptionsFactory',
                 'NetglueMail\TemplateService' => 'NetglueMail\Factory\TemplateServiceFactory',
+                'NetglueMail\Dispatcher'      => 'NetglueMail\Factory\DispatcherFactory',
             ],
         ];
     }

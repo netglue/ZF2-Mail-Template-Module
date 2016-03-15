@@ -43,13 +43,31 @@ class TemplateService
         $viewModel = (null === $viewModel) ? new ViewModel : $viewModel;
         $tmpl = $this->getTemplateByName($messageName);
         if (null === $tmpl) {
-            throw new Exception\UnknownTemplateException(sprintf(
-                'The template for the message type %s has not been set',
-                $tmpl
-            ));
+            return null;
         }
         $viewModel->setTemplate($tmpl);
         return $this->renderToLayout(
+            $messageName,
+            $this->renderer->render($viewModel)
+        );
+    }
+
+    /**
+     * Render a plain-text template with the given name and model
+     * @param string $messageName
+     * @param ModelInterface $viewModel
+     * @return string
+     * @throws Exception\UnknownTemplateException if no template has been set
+     */
+    public function renderTextTemplate($messageName, ModelInterface $viewModel = null)
+    {
+        $viewModel = (null === $viewModel) ? new ViewModel : $viewModel;
+        $tmpl = $this->getTextTemplateByName($messageName);
+        if (null === $tmpl) {
+            return null;
+        }
+        $viewModel->setTemplate($tmpl);
+        return $this->renderToTextLayout(
             $messageName,
             $this->renderer->render($viewModel)
         );
@@ -72,6 +90,22 @@ class TemplateService
     }
 
     /**
+     * Render given text to the template specified for the given message or to the default layout (or none at all)
+     * @param string $messageName
+     * @param string $text
+     * @return string
+     */
+    private function renderToTextLayout($messageName, $text)
+    {
+        $layout = $this->getTextLayoutByName($messageName);
+        if (!empty($layout)) {
+            $text = $this->renderer->render($layout, ['content' => $text]);
+        }
+
+        return $text;
+    }
+
+    /**
      * Return the layout template that should be used
      * @param string $messageName
      * @return string|null
@@ -79,13 +113,18 @@ class TemplateService
     public function getLayoutByName($messageName)
     {
         $layout = $this->options->getDefaultLayout();
-        if ($config = $this->options->getMessageConfig($messageName)) {
-            if (isset($config['layout'])) {
-                $layout = $config['layout'];
-            }
-        }
+        return $this->options->getMessageOption($messageName, 'layout', $layout);
+    }
 
-        return $layout;
+    /**
+     * Return the layout template that should be used
+     * @param string $messageName
+     * @return string|null
+     */
+    public function getTextLayoutByName($messageName)
+    {
+        $layout = $this->options->getTextLayout();
+        return $this->options->getMessageOption($messageName, 'textLayout', $layout);
     }
 
     /**
@@ -95,13 +134,18 @@ class TemplateService
      */
     public function getTemplateByName($messageName)
     {
-        if ($config = $this->options->getMessageConfig($messageName)) {
-            if (isset($config['template'])) {
-                return $config['template'];
-            }
-        }
+        return $this->options->getMessageOption($messageName, 'template');
+    }
 
-        return null;
+
+    /**
+     * Return text template name for specific message
+     * @param string $messageName
+     * @return string|null
+     */
+    public function getTextTemplateByName($messageName)
+    {
+        return $this->options->getMessageOption($messageName, 'textTemplate');
     }
 
     /**
