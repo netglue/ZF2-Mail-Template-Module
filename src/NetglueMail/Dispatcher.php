@@ -126,6 +126,8 @@ class Dispatcher implements EventsCapableInterface, EventManagerAwareInterface
         unset($options['headers']);
         $options['headers'] = $headers;
 
+        $this->setDefaultSender($options);
+
         /**
          * Set Recipients and senders that could be multiple addresses
          */
@@ -178,6 +180,22 @@ class Dispatcher implements EventsCapableInterface, EventManagerAwareInterface
         $this->addAttachments($message, $options);
 
         return $message;
+    }
+
+    /**
+     * Sets the default from address as configured if one is not currently set for the message options given
+     * @param  array &$options
+     * @return void
+     */
+    protected function setDefaultSender(array &$options)
+    {
+        if(!isset($options['from']) || empty($options['from'])) {
+            $from = $this->options->getDefaultSender();
+            $fromName = $this->options->getDefaultSenderName();
+            $options['from'] = [
+                $from => $fromName,
+            ];
+        }
     }
 
     /**

@@ -49,6 +49,11 @@ return [
                 'from' => 'you@example.com',
                 'subject' => 'A Test',
             ],
+
+            'noSender' => [
+                'template'     => 'tmpl/one',
+                'subject'      => 'foo!',
+            ],
         ],
 
     ],

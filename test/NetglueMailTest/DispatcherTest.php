@@ -215,4 +215,26 @@ class DispatcherTest extends AbstractControllerTestCase
         $this->assertContains($id, $text->getContent());
     }
 
+    /**
+     * @depends testDispatcherCanBeRetrievedFromServiceManager
+     */
+    public function testDefaultSenderIsSet(Dispatcher $dispatcher)
+    {
+        $msg = $dispatcher->createMessage('noSender');
+        $from = $msg->getFrom();
+        $this->assertCount(1, $from);
+        $this->assertTrue($from->has('me@example.com'));
+    }
+
+    /**
+     * @depends testDispatcherCanBeRetrievedFromServiceManager
+     */
+    public function testDefaultSenderDoesNotOverrideFrom(Dispatcher $dispatcher)
+    {
+        $msg = $dispatcher->createMessage('contactUs');
+        $from = $msg->getFrom();
+        $this->assertCount(1, $from);
+        $this->assertFalse($from->has('me@example.com'));
+        $this->assertTrue($from->has('jane@example.com'));
+    }
 }
