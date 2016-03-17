@@ -109,3 +109,7 @@ Events are triggered before and after a message is sent via the transport. You c
     });
 
 The message object (`Zend\Mail\Message`) is available in the event parameter array keyed as 'message' and the message name keyed as 'messageName'
+
+### Controller Plugin
+
+There's a controller plugin available called `dispatchEmail` which has the same signature as `NetglueMail\Dispatcher::send()`, i.e. `$this->dispatchEmail('myMessage', $options, $viewVars);`
