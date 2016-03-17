@@ -48,7 +48,7 @@ class Module implements
                 'NetglueMail\Controller\Plugin\MailDispatcher' => 'NetglueMail\Controller\Plugin\Factory\MailDispatcherFactory',
             ],
             'aliases' => [
-                'mailDispatch' => 'NetglueMail\Controller\Plugin\MailDispatcher',
+                'dispatchEmail' => 'NetglueMail\Controller\Plugin\MailDispatcher',
             ],
         ];
     }

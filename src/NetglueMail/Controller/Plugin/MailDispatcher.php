@@ -24,4 +24,9 @@ class MailDispatcher extends AbstractPlugin
     {
         return $this->dispatcher->send($messageName, $options, $viewModel);
     }
+
+    public function getDispatcher()
+    {
+        return $this->dispatcher;
+    }
 }
