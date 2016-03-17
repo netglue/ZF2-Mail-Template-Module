@@ -7,7 +7,10 @@
 		"zf2",
 		"zend",
 		"module",
-		"netglue"
+		"netglue",
+		"email",
+		"mail",
+		"template"
 	],
 	"config" : {
 		"minimum-stability" : "dev"
@@ -23,9 +26,7 @@
 	"require" : {
 		"php" : ">=5.5",
 		"zendframework/zendframework": "~2.5",
-        "zendframework/zend-mvc": "2.6.3",
-        "sendgrid/sendgrid": "~4.0",
-		"psr/log" : "~1.0"
+        "zendframework/zend-mvc": "2.6.3"
     },
 	"autoload" : {
 		"psr-0" : {

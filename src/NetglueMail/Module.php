@@ -6,7 +6,8 @@ use Zend\ModuleManager\Feature;
 
 class Module implements
     Feature\ConfigProviderInterface,
-    Feature\ServiceProviderInterface
+    Feature\ServiceProviderInterface,
+    Feature\ControllerPluginProviderInterface
 
 {
 
@@ -32,6 +33,22 @@ class Module implements
                 'NetglueMail\ModuleOptions'   => 'NetglueMail\Factory\ModuleOptionsFactory',
                 'NetglueMail\TemplateService' => 'NetglueMail\Factory\TemplateServiceFactory',
                 'NetglueMail\Dispatcher'      => 'NetglueMail\Factory\DispatcherFactory',
+            ],
+        ];
+    }
+
+    /**
+     * Return controller plugin config
+     * @return array
+     */
+    public function getControllerPluginConfig()
+    {
+        return [
+            'factories' => [
+                'NetglueMail\Controller\Plugin\MailDispatcher' => 'NetglueMail\Controller\Plugin\Factory\MailDispatcherFactory',
+            ],
+            'aliases' => [
+                'mailDispatch' => 'NetglueMail\Controller\Plugin\MailDispatcher',
             ],
         ];
     }
