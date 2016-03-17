@@ -6,13 +6,17 @@ use NetglueMailTest\bootstrap;
 use NetglueMail\TemplateService;
 use NetglueMail\Dispatcher;
 use Zend\View\Renderer\PhpRenderer;
+use Zend\View\Model\ViewModel;
 use Zend\Test\PHPUnit\Controller\AbstractControllerTestCase;
 use Zend\Mail\Transport\InMemory;
 use Zend\Mail\AddressList;
 use Zend\Mail\Address;
+use Zend\EventManager\Test\EventListenerIntrospectionTrait;
+use Zend\EventManager\EventInterface;
 
 class DispatcherTest extends AbstractControllerTestCase
 {
+    use EventListenerIntrospectionTrait;
 
     public function setUp()
     {
@@ -157,6 +161,58 @@ class DispatcherTest extends AbstractControllerTestCase
         $this->assertCount(2, $parts);
         $file = end($parts);
         $this->assertContains('Attachment Content', base64_decode($file->getContent()));
+    }
+
+    /**
+     * @depends testDispatcherCanBeRetrievedFromServiceManager
+     */
+    public function testSendEventsAreTriggered(Dispatcher $dispatcher)
+    {
+        $sl = $this->getApplicationServiceLocator();
+        $events = $sl->get('EventManager');
+        $shared = $events->getSharedManager();
+        $shared->attach('NetglueMail\Dispatcher', 'sendMessage', [$this, 'ensurePreSendEvent']);
+        $shared->attach('NetglueMail\Dispatcher', 'sendMessage.post', [$this, 'ensurePostSendEvent']);
+        $dispatcher->send('viewVariables');
+    }
+
+    public function ensurePreSendEvent(EventInterface $event)
+    {
+        $this->assertInstanceOf('NetglueMail\Dispatcher', $event->getTarget());
+        $this->assertSame('sendMessage', $event->getName());
+        $params = $event->getParams();
+        $this->assertInstanceOf('Zend\Mail\Message', $params['message']);
+        $this->assertSame('viewVariables', $params['messageName']);
+    }
+
+    public function ensurePostSendEvent(EventInterface $event)
+    {
+        $this->assertSame('sendMessage.post', $event->getName());
+    }
+
+    /**
+     * @depends testDispatcherCanBeRetrievedFromServiceManager
+     * @expectedException NetglueMail\Exception\InvalidArgumentException
+     */
+    public function testExceptionIsThrownForInvalidViewModel(Dispatcher $dispatcher)
+    {
+        $dispatcher->send('viewVariables', [], 100);
+    }
+
+    /**
+     * @depends testDispatcherCanBeRetrievedFromServiceManager
+     */
+    public function testViewModelIsAcceptable(Dispatcher $dispatcher)
+    {
+        $id = uniqid('expect-this-');
+        $viewModel = new ViewModel;
+        $viewModel->setVariables([
+            'test' => $id,
+        ]);
+        $message = $dispatcher->send('viewVariables', [], $viewModel);
+        $body = $message->getBody();
+        $text = current($body->getParts());
+        $this->assertContains($id, $text->getContent());
     }
 
 }

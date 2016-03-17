@@ -7,9 +7,14 @@ use Zend\View\Model\ViewModel;
 use Zend\View\Model\ModelInterface;
 use Zend\Mail;
 use Zend\Mime;
+use Zend\EventManager\EventManagerAwareTrait;
+use Zend\EventManager\EventsCapableInterface;
+use Zend\EventManager\EventManagerAwareInterface;
 
-class Dispatcher
+class Dispatcher implements EventsCapableInterface, EventManagerAwareInterface
 {
+
+    use EventManagerAwareTrait;
 
     /**
      * @var ModuleOptions
@@ -39,6 +44,10 @@ class Dispatcher
      * Create the Mail Message for the given type using the view variables or model provided
      *
      * The method sets up any configured headers, recipients, senders etc and returns the message for further manipulation
+     *
+     * @param  string               $messageName  Configured Message Name
+     * @param  array                $options      Message options such as recipient, from, headers etc
+     * @param  array|modelInterface $viewModel    View model to render templates with or an array of view variables
      * @return Mail\Message
      */
     public function createMessage($messageName, array $options = [], $viewModel = null)
@@ -67,16 +76,37 @@ class Dispatcher
         return $message;
     }
 
+    /**
+     * Create and send the named message
+     * @param  string               $messageName  Configured message name
+     * @param  array                $options      Message options override configured defaults
+     * @param  array|ModelInterface $viewModel    View model to render templates with
+     * @return Mail\Message
+     */
     public function send($messageName, array $options = [], $viewModel = null)
     {
         $message = $this->createMessage($messageName, $options, $viewModel);
-        $this->sendMessage($message);
+        $eventParams = [
+            'messageName' => $messageName,
+        ];
+        $this->sendMessage($message, $eventParams);
         return $message;
     }
 
-    public function sendMessage(Mail\Message $message)
+    /**
+     * Send a message with the transport with optional extra event paramters to be sent with triggered events
+     * @param  Mail\Message $message      The message to send
+     * @param  array        $eventParams  Additional event data/params
+     * @return void
+     */
+    public function sendMessage(Mail\Message $message, array $eventParams = [])
     {
+        $eventParams = [
+            'message' => $message,
+        ];
+        $this->getEventManager()->trigger(__FUNCTION__, $this, $eventParams);
         $this->transport->send($message);
+        $this->getEventManager()->trigger(__FUNCTION__ . '.post', $this, $eventParams);
     }
 
     /**
